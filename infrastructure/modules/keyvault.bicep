@@ -37,13 +37,13 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 
 // Role Assignment
 resource kv_roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(subscription().subscriptionId, keyVaultName, roleAssignment.principalId)
-  scope: keyVault
+  name: guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
   properties: {
     principalId: roleAssignment.principalId
     roleDefinitionId: roleAssignment.roleDefinitionIdOrName
     principalType: roleAssignment.principalType
   }
+  scope: keyVault
 }
 
 // Outputs
