@@ -13,10 +13,13 @@ param enableVaultForDeployment bool = true
 param sku string = 'standard'
 
 @description('Role assignment for the Key Vault')
-param roleAssignment object = {
-  principalId: '7200f83e-ec45-4915-8c52-fb94147cfe5a'
-  roleDefinitionIdOrName: 'Key Vault Secrets User'
-  principalType: 'ServicePrincipal'
+param roleAssignments array
+
+var builtInRoleNames = {
+  'Key Vault Secrets User': subscriptionResourceId(
+    'Microsoft.Authorization/roleDefinitions',
+    '4633458b-17de-408a-b874-0445c86b69e6'
+  )
 }
 
 // Key Vault Resource
@@ -36,16 +39,16 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 }
 
 // Role Assignment
-resource kv_roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
-  properties: {
-    principalId: roleAssignment.principalId
-    roleDefinitionId: roleAssignment.roleDefinitionIdOrName
-    principalType: roleAssignment.principalType
+resource kv_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for (roleAssignment, index) in (roleAssignments ?? []): {
+    name: guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
+    properties: {
+      roleDefinitionId: builtInRoleNames[?roleAssignment.roleDefinitionIdOrName] ?? roleAssignment.roleDefinitionIdOrName
+      principalId: roleAssignment.principalId
+    }
+    scope: keyVault
   }
-  scope: keyVault
-}
-
+]
 // Outputs
 @description('The resource ID of the key vault.')
 output resourceId string = keyVault.id

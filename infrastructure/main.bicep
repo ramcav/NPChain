@@ -4,6 +4,8 @@ param location string = resourceGroup().location
 // Key Vault Module Variables
 @description('Name of the Azure Key Vault')
 param keyVaultName string
+@description('Role assignment for the Key Vault')
+param roleAssignments array
 
 // ACR Module Variables
 @description('Name of the Azure Container Registry')
@@ -33,6 +35,7 @@ module keyvault './modules/keyvault.bicep' = {
   params: {
     keyVaultName: keyVaultName
     location: location
+    roleAssignments: roleAssignments
   }
 }
 
