@@ -8,6 +8,8 @@ param location string = resourceGroup().location
 @description('Specifies if the vault is enabled for deployment by script or compute.')
 param enableVaultForDeployment bool = true
 
+@description('Enable RBAC for the Key Vault')
+param enableRbac bool = true
 
 @description('Specifies the SKU for the vault.')
 param sku string = 'standard'
@@ -28,6 +30,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   location: location
   properties: {
     enabledForDeployment: enableVaultForDeployment
+    enableRbacAuthorization: enableRbac
     
     sku: {
       name: sku
