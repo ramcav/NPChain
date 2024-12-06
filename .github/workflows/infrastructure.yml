@@ -3,8 +3,8 @@ name: npchain-infra
 on:
   workflow_dispatch:
   push:
-    # paths:
-    #   - 'infrastructure/**'
+    paths:
+      - 'infrastructure/**'
 
 
 env:
@@ -15,10 +15,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v2
-    - name: Run Bicep Linter
-      run: az bicep build --file ./main.bicep 
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Bicep Linter
+        run: az bicep build --file ./main.bicep 
   
   deploy:
     runs-on: ubuntu-latest
