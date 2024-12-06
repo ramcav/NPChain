@@ -3,8 +3,8 @@ name: npchain-infra
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'infrastructure/**'
+    # paths:
+    #   - 'infrastructure/**'
 
 
 env:
