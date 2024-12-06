@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Bicep Linter
-        run: az bicep build --file main.bicep 
+        run: az bicep build --file infrastructure/main.bicep 
   
   deploy:
     runs-on: ubuntu-latest
@@ -37,8 +37,8 @@ jobs:
         with:
           subscriptionId: ${{ env.SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: main.bicep
-          parameters: parameters/dev.bicepparam 
+          template: infrastructure/main.bicep
+          parameters: infrastructure/parameters/dev.bicepparam 
          
           deploymentName: ${{ env.USER_ALIAS }}
       
