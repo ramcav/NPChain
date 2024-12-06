@@ -37,8 +37,8 @@ jobs:
         with:
           subscriptionId: ${{ env.SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./main.bicep
-          parameters: ./parameters/dev.bicepparam 
+          template: main.bicep
+          parameters: parameters/dev.bicepparam 
          
           deploymentName: ${{ env.USER_ALIAS }}
       
