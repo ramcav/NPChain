@@ -48,6 +48,7 @@ resource kv_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01'
     properties: {
       roleDefinitionId: builtInRoleNames[?roleAssignment.roleDefinitionIdOrName] ?? roleAssignment.roleDefinitionIdOrName
       principalId: roleAssignment.principalId
+      principalType: roleAssignment.principalType
     }
     scope: keyVault
   }
