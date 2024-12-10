@@ -73,6 +73,7 @@ jobs:
 
       - name: Build and push Docker image to DEV ACR
         run: |
+          cd api
           docker build -t NPChainACR.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ env.BACKEND_IMAGE_TAG }} .
           docker login NPChainACR.azurecr.io -u $DEV_ACR_USERNAME -p $DEV_ACR_PASSWORD
           docker push NPChainACR.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ env.BACKEND_IMAGE_TAG }}
