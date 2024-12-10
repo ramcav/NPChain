@@ -20,6 +20,7 @@ param dockerRegistryServerUsername string
 @secure() 
 param dockerRegistryServerPassword string
 @description('App settings for the Azure Webapp for Linux Container')
+
 param appSettings object = {
   WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
   DOCKER_REGISTRY_SERVER_URL: dockerRegistryServerUrl

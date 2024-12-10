@@ -76,7 +76,7 @@ module webapp './modules/webapp.bicep' = {
     webappName: webappName
     location: location
     appServicePlanId: appServicePlan.outputs.appServicePlanId
-    containerRegistryName: acr.outputs.registryLoginServer
+    containerRegistryName:registryName
     containerRegistryImageName: containerRegistryImageName
     containerRegistryImageVersion: containerRegistryImageVersion
     dockerRegistryServerUrl: acr.outputs.registryLoginServer
