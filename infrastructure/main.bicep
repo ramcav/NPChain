@@ -47,9 +47,9 @@ module acr './modules/acr.bicep' = {
     location: location
     sku: sku
     keyVaultResourceId: keyvault.outputs.resourceId
-    keyVaultSecretNameAdminUsername: 'acrAdminUsername'
-    keyVaultSecretNameAdminPassword0: 'acrAdminPassword0'
-    keyVaultSecretNameAdminPassword1: 'acrAdminPassword1'
+    keyVaultSecretNameAdminUsername: dockerRegistryServerUsername
+    keyVaultSecretNameAdminPassword0: dockerRegistryServerPassword
+    keyVaultSecretNameAdminPassword1: dockerRegistryServerPassword
   }
 }
 
@@ -65,7 +65,7 @@ module appServicePlan './modules/asp.bicep' = {
 // KeyVault Reference
 resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
- }
+}
 
 // Webapp Module
 
