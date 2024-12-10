@@ -1,0 +1,77 @@
+name: npchain-backend
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'api/**'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  BACKEND_IMAGE_NAME: npchain
+  BACKEND_IMAGE_TAG: latest
+  DEV_KV: npchain-kv
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8 pytest
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Save Docker context as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-context
+          path: .
+          if-no-files-found: error
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+
+    environment: Development
+
+    steps:
+      - name: Download Docker context artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-context
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Fetch secrets from Key Vault
+        run: |
+          DEV_ACR_USERNAME=$(az keyvault secret show --vault-name ${{env.DEV_KV}} --name acrAdminUsername --query value -o tsv)
+          DEV_ACR_PASSWORD=$(az keyvault secret show --vault-name ${{env.DEV_KV}} --name acrAdminPassword --query value -o tsv)
+          echo "DEV_ACR_USERNAME=${DEV_ACR_USERNAME}" >> $GITHUB_ENV
+          echo "DEV_ACR_PASSWORD=${DEV_ACR_PASSWORD}" >> $GITHUB_ENV
+
+      - name: Build and push Docker image to DEV ACR
+        run: |
+          docker build -t NPChainACR.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ env.BACKEND_IMAGE_TAG }} .
+          docker login NPChainACR.azurecr.io -u $DEV_ACR_USERNAME -p $DEV_ACR_PASSWORD
+          docker push NPChainACR.azurecr.io/${{ env.BACKEND_IMAGE_NAME }}:${{ env.BACKEND_IMAGE_TAG }}
