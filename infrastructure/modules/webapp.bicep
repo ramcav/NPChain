@@ -45,4 +45,3 @@ resource webapp 'Microsoft.Web/sites@2021-02-01' = {
 }
 
 output appServiceAppHostName string = webapp.properties.defaultHostName
-output systemAssignedIdentityPrincipalId string = webapp.identity.principalId
