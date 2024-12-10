@@ -24,10 +24,12 @@ param webappName string
 param containerRegistryImageName string = 'npchain'
 @description('Container Registry Image Version for the Azure Webapp for Linux Container')
 param containerRegistryImageVersion string = 'latest'
+
+
 @description('Dcoker Registry Server Username for the Azure Webapp for Linux Container')
 var dockerRegistryServerUsername = 'acrAdminUsername'
 @description('Dcoker Registry Server Password for the Azure Webapp for Linux Container')
-var dockerRegistryServerPassword = 'acrAdminPassword0'
+var dockerRegistryServerPassword = 'acrAdminPassword'
 
 // Key Vault Module
 module keyvault './modules/keyvault.bicep' = {
@@ -48,8 +50,7 @@ module acr './modules/acr.bicep' = {
     sku: sku
     keyVaultResourceId: keyvault.outputs.resourceId
     keyVaultSecretNameAdminUsername: dockerRegistryServerUsername
-    keyVaultSecretNameAdminPassword0: dockerRegistryServerPassword
-    keyVaultSecretNameAdminPassword1: dockerRegistryServerPassword
+    keyVaultSecretNameAdminPassword: dockerRegistryServerPassword
   }
 }
 
