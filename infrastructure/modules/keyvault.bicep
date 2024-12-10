@@ -8,6 +8,9 @@ param location string = resourceGroup().location
 @description('Specifies if the vault is enabled for deployment by script or compute.')
 param enableVaultForDeployment bool = true
 
+@description('If vault is allowed for template deployment')
+param enableVaultForTemplateDeployment bool = true
+
 @description('Enable RBAC for the Key Vault')
 param enableRbac bool = true
 
@@ -82,6 +85,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   location: location
   properties: {
     enabledForDeployment: enableVaultForDeployment
+    enabledForTemplateDeployment: enableVaultForTemplateDeployment
     enableRbacAuthorization: enableRbac
     enableSoftDelete: true
     
