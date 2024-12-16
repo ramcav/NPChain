@@ -45,3 +45,4 @@ resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01'
 // create a secret to store the container registry admin password 
 
 output registryLoginServer string = containerRegistry.properties.loginServer
+
