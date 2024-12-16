@@ -1,39 +1,18 @@
 from fastapi import FastAPI
+from src.database.config import Base, engine
+from src.routes import blockchain  # Import the blockchain routes
 
-from src.blockchain.blockchain import DonationBlockchain
-from src.blockchain.donation import Donation
-
+# Initialize FastAPI app
 app = FastAPI()
+
+# Include blockchain-related routes
+app.include_router(blockchain.router, prefix="/api", tags=["Blockchain"])
+
+# Initialize database tables
+@app.on_event("startup")
+def init_db():
+    Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Donation Blockchain API"}
-
-
-@app.get("/test")
-async def test():
-    
-    blockchain = DonationBlockchain()
-
-    # Create a donation
-    
-    donation = Donation("ALICE", 100, "Donation 1")
-    
-    # Add the transaction to the blockchain
-    blockchain.add_donation(donation)
-    
-    # Create another transaction
-    
-    donation2 = Donation("BOB", 50, "Donation 2")
-    
-    # Add the transaction to the blockchain
-    
-    blockchain.add_donation(donation2)
-    
-    # Print the blockchain
-    
-    for block in blockchain.chain:
-        print(block.__dict__)
-        
-    print(blockchain.is_chain_valid())
-    return {"message": "Test completed: " + "BLOCKCHAIN IS VALID" if str(blockchain.is_chain_valid()) else "BLOCKCHAIN IS INVALID"}
+    return {"message": "Welcome to the Blockchain API"}
