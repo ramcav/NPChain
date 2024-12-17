@@ -7,7 +7,7 @@ from datetime import datetime
 class DonationBlockchain:
     def __init__(self, db: Session):
         self.db = db
-        self.chain = self.load_chain_from_db()
+        self.chain = self._load_chain_from_db()
         
     def create_genesis_block(self):
         """Create and store the genesis block."""
@@ -21,7 +21,8 @@ class DonationBlockchain:
                 transaction_id="0",
             )
         ]
-
+        
+        
         genesis_block = Block(index=0, data=data, previous_hash="0" * 64)
         genesis_block.hash = genesis_block._create_hash()
 
@@ -33,6 +34,19 @@ class DonationBlockchain:
             hash=genesis_block.hash,
         )
         
+        # Assign donations to the genesis block
+        for donation in data:
+            db_donation = Donation(
+                block_id=db_block.id,
+                name=donation.name,
+                amount=donation.amount,
+                sender=donation.sender,
+                receiver=donation.receiver,
+                description=donation.description,
+                transaction_id=donation.transaction_id,
+            )
+            self.db.add(db_donation)
+    
         self.db.add(db_block)
         
         self.db.commit()
@@ -41,43 +55,53 @@ class DonationBlockchain:
 
         return genesis_block
 
-    def load_chain_from_db(self):
+    def _load_chain_from_db(self):
         """Reconstruct the blockchain from the database."""
         stored_blocks = (
             self.db.query(StoredDonationBlock)
             .order_by(StoredDonationBlock.index)
             .all()
         )
-        
+
         if not stored_blocks:
+            # Create the genesis block if no blocks are in the database
             return [self.create_genesis_block()]
-        
-        return [
-            Block(
-                index=block.index,
-                data=[
-                    Donation(
-                        name=donation.name,
-                        sender=donation.sender,
-                        receiver=donation.receiver,
-                        amount=donation.amount,
-                        description=donation.description,
-                        transaction_id=donation.transaction_id,
-                    )
-                    for donation in block.donations
-                ],
-                previous_hash=block.previous_hash,
+
+        chain = []
+        for block in stored_blocks:
+            # Fetch donations associated with this block
+            donations = self.db.query(Donation).filter(Donation.block_id == block.id).all()
+            block_data = [
+                Donation(
+                    name=donation.name,
+                    sender=donation.sender,
+                    receiver=donation.receiver,
+                    amount=donation.amount,
+                    description=donation.description,
+                    transaction_id=donation.transaction_id,
+                )
+                for donation in donations
+            ]
+
+            # Reconstruct the block
+            chain.append(
+                Block(
+                    index=block.index,
+                    data=block_data,
+                    previous_hash=block.previous_hash,
+                    hash=block.hash,
+                    timestamp=block.timestamp.timestamp(),
+                )
             )
-            for block in stored_blocks
-        ]
+
+        return chain
 
     def add_block(self, data: list[Donation]):
         """Add a block to the blockchain."""
-        
-        
-        print("Previous block", self.chain[-1].data)
-        print("Previous block hash", self.chain[-1].hash)
-        
+        # Reload the chain to ensure it is synchronized with the database
+        self.chain = self._load_chain_from_db()
+
+        # Get the last block in the chain
         previous_block = self.chain[-1] if self.chain else None
         previous_hash = previous_block.hash if previous_block else "0" * 64
 
@@ -87,6 +111,7 @@ class DonationBlockchain:
             data=data,
             previous_hash=previous_hash,
         )
+        new_block.hash = new_block._create_hash()
 
         # Store the block in the database
         db_block = StoredDonationBlock(
@@ -117,6 +142,8 @@ class DonationBlockchain:
 
     def is_chain_valid(self):
         """Validate the blockchain."""
+        self.chain = self._load_chain_from_db()
+        
         for i in range(1, len(self.chain)):
             current_block = self.chain[i]
             previous_block = self.chain[i - 1]
@@ -135,3 +162,7 @@ class DonationBlockchain:
                 return False
             
         return True
+    
+def start_blockchain(db: Session):
+    blockchain = DonationBlockchain(db)
+    return blockchain

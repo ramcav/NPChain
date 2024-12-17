@@ -4,12 +4,12 @@ from .donation import Donation
 import time
 
 class Block:
-    def __init__(self, index: int, data: Donation, previous_hash=''):
+    def __init__(self, index: int, data: Donation, hash: str = '', previous_hash: str = '', timestamp: float = 0):
         self.index = index
-        self.timestamp = time.time()
+        self.timestamp = timestamp if timestamp else time.time()
         self.data = data
         self.previous_hash = previous_hash
-        self.hash = self._create_hash()
+        self.hash = hash if hash else self._create_hash()
         
     def _create_hash(self) -> str:
         # Convert all properties into a string and encode it
