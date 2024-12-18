@@ -19,6 +19,24 @@
             color: white;
             font-size: 30px;
         }
+        .top-bar {
+            text-align: center;
+            background: #f9f9f9;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .top-bar button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .top-bar button:hover {
+            background: #45a049;
+        }
         .container {
             width: 90%;
             max-width: 1200px;
@@ -74,14 +92,17 @@
     <header>
         NPChain Viewer
     </header>
+    <div class="top-bar">
+        <button onclick="location.href='/api/visualize_donation/'">Submit a Donation</button>
+    </div>
     <div class="subheading">
-    <p class="subtitle">
-        We are a non-profit, open source project that looks to help NPOs handle resources
-        in a better, more transparent way.
-        <br>
-        This is a visualizer of all the transactions different NPOs have received and sent,
-        which we keep track of using a blockchain ledger.
-    </p>
+        <p class="subtitle">
+            We are a non-profit, open source project that looks to help NPOs handle resources
+            in a better, more transparent way.
+            <br>
+            This is a visualizer of all the transactions different NPOs have received and sent,
+            which we keep track of using a blockchain ledger.
+        </p>
     </div>
     <div class="container">
         {% for block in chain %}

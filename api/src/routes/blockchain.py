@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ..database.config import SessionLocal
 from ..blockchain.blockchain import DonationBlockchain
@@ -39,3 +39,36 @@ async def visualize(request: Request, db: Session = Depends(get_db)):
     blockchain = DonationBlockchain(db)
     return templates.TemplateResponse(request=request, name="visualizer.html", context={"chain": blockchain.chain})
     
+@router.get("/visualize_donation/", response_class=HTMLResponse)
+async def submit_donation_form(request: Request):
+    return templates.TemplateResponse(
+        name="donation_form.html", 
+        context={"request": request}
+    )
+    
+@router.post("/submit_donation/")
+def add_donation(
+    name: str = Form(...),
+    sender: str = Form(...),
+    receiver: str = Form(...),
+    amount: int = Form(...),
+    description: str = Form(""),
+    transaction_id: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    # Create a Donation object
+    # Create a Donation object
+    donation = DonationCreate(
+        name=name,
+        sender=sender,
+        receiver=receiver,
+        amount=amount,
+        description=description,
+        transaction_id=transaction_id,
+    )
+
+    # Add the donation to the blockchain
+    blockchain = DonationBlockchain(db)
+    blockchain.add_block([donation])
+
+    return RedirectResponse(url="/api/visualize/", status_code=303)
